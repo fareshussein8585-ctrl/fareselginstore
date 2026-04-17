@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELGEN STORE</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --primary: #00ff88; --wa: #25d366; --tg: #0088cc; --yt: #ff0000; }
+        body { margin: 0; font-family: 'Cairo', sans-serif; background: #0f172a; color: white; direction: rtl; }
+        
+        .navbar { background: rgba(15, 23, 42, 0.9); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 24px; font-weight: 900; color: var(--primary); text-shadow: 0 0 10px rgba(0,255,136,0.3); }
+        .search-bar { background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; width: 40%; display: flex; }
+        .search-bar input { border: none; background: transparent; color: white; width: 100%; outline: none; }
+
+        .main-container { padding: 20px 5%; display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
+        
+        .dev-card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 25px; text-align: center; border: 1px solid rgba(255,255,255,0.1); height: fit-content; }
+        .dev-img { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--primary); object-fit: cover; margin-bottom: 15px; }
+        
+        .social-links { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
+        .social-links a { font-size: 25px; color: white; transition: 0.3s; }
+        .wa:hover { color: var(--wa); } .tg:hover { color: var(--tg); } .yt:hover { color: var(--yt); }
+
+        .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        .app-card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; text-align: center; border: 1px solid transparent; transition: 0.3s; }
+        .app-card:hover { border-color: var(--primary); transform: translateY(-5px); }
+        .app-card img { width: 80px; height: 80px; border-radius: 15px; margin-bottom: 10px; }
+        
+        .download-btn { background: var(--primary); color: black; text-decoration: none; padding: 8px; border-radius: 10px; display: block; font-weight: bold; margin-top: 10px; font-size: 14px; }
+        
+        footer { text-align: center; padding: 20px; opacity: 0.5; font-size: 12px; }
+
+        @media (max-width: 800px) { .main-container { grid-template-columns: 1fr; } .search-bar { width: 60%; } }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">ELGEN STORE</div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="ابحث هنا...">
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <aside>
+            <div class="dev-card">
+                <img src="https://i.ibb.co/s9Ffzj7C/IMG-20260417-125139.jpg" class="dev-img">
+                <h2>فارس الجن</h2>
+                <p style="color:var(--primary)">المطور الرسمي</p>
+                <div class="social-links">
+                    <a href="https://wa.me/201068223020" target="_blank" class="wa"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://t.me/faressadbot" target="_blank" class="tg"><i class="fab fa-telegram-plane"></i></a>
+                    <a href="https://youtube.com/@elginelyoutuber" target="_blank" class="yt"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </aside>
+
+        <main>
+            <div class="app-grid" id="app-container">
+                <p>جاري تحميل التطبيقات...</p>
+            </div>
+        </main>
+    </div>
+
+    <footer>جميع الحقوق محفوظة للفنان فارس الجن &copy; 2026</footer>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBzygjra61hqPVhW1qTjlFv0mCtXkLzyc",
+            databaseURL: "https://elgen-app-default-rtdb.firebaseio.com",
+            projectId: "elgen-app",
+            storageBucket: "elgen-app.firebasestorage.app",
+            messagingSenderId: "1089000216997",
+            appId: "1:1089000216997:android:4b8ba783ec7a0446e2304c"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        let apps = {};
+
+        db.ref('apps').on('value', (snap) => {
+            apps = snap.val() || {};
+            render(apps);
+        });
+
+        function render(data) {
+            const container = document.getElementById('app-container');
+            container.innerHTML = '';
+            Object.keys(data).forEach(id => {
+                const app = data[id];
+                container.innerHTML += `
+                    <div class="app-card">
+                        <img src="${app.icon}">
+                        <h3 style="font-size:15px; margin:5px 0;">${app.name}</h3>
+                        <a href="${app.downloadUrl}" class="download-btn">تنزيل</a>
+                    </div>`;
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = {};
+            Object.keys(apps).forEach(id => {
+                if(apps[id].name.toLowerCase().includes(term)) filtered[id] = apps[id];
+            });
+            render(filtered);
+        });
+    </script>
+</body>
+</html>
