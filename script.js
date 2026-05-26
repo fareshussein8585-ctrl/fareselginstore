@@ -31,6 +31,12 @@ function renderApps(data) {
     if (keys.length > 0) {
         keys.forEach(id => {
             const app = data[id];
+            // 1. حساب النجوم (لو مش موجودة في الفايربيز هتبقى 0)
+        const rating = app.rating ? parseInt(app.rating) : 0; 
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+            starsHtml += `<span style="color: ${i <= rating ? '#FFD700' : '#ccc'}; font-size: 16px;">★</span>`;
+        }
             container.innerHTML += `
                 <div class="app-card">
                     <img src="${app.icon || 'https://via.placeholder.com/100'}" alt="icon">
